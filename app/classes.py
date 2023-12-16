@@ -1,6 +1,90 @@
-type Project = dict[str, list[str]]
+from layout import Layout
 
-def save_project_images(layer_names_of_projects: Project, zoom: float, dpi: float) -> None:
+
+
+type ProjectLayers = dict[str, list[str]]
+
+
+
+class Project:
+    def __init__(self, project_layers: ProjectLayers) -> None:
+        self.project_layers = project_layers
+        active_area_names = self.active_partial_area_names()
+
+    def save_images(self, zoom=0.3, dpi=300):
+        for key in self.project_layers:
+            for area_name in self.active_partial_area_names():
+                Frame(area_name, self.project_layers[key], zoom).create()
+                self.save_active_area(dpi)
+
+    def active_partial_area_names(self) -> list[str]:
+        return ['r']
+    
+    def save_active_area(self, dpi):
+        pass
+
+
+class Layers:
+    def __init__(self) -> None:
+        self.hide_all()
+
+    def set_visible(self, layers: list[str]):
+        if self.visible != layers:
+            self.hide_all()
+            self.add_to_visible(layers)
+
+    def hide_all(self):
+        self.visible = []
+        pass
+    
+    def add_to_visible(self, layers):
+        self.visible.extend(layers)
+        pass
+
+
+class Frame:
+    """Frame sets visible layers, position, zoom, legend and scalebar"""
+    def __init__(self, partial_area_name: str, layer_names: list[str], zoom: float) -> None:
+        self.partial_area_name = partial_area_name
+        self.layer_names = layer_names
+        self.zoom = zoom
+    
+    def create(self):
+        Layers().set_visible(self.layer_names)
+        self.zoom_to()
+        Layout(self.active_layer_names_in_frame()).create()
+
+    def zoom_to(self):
+        pass 
+
+    def active_layer_names_in_frame(self):
+        return give_overlap_list(self.partial_area_name, self.layer_names)
+
+
+
+
+
+
+############## OLD
+class ImageMaker:
+    def __init__(self,  layer_names: list[str], zoom, dpi) -> None:
+        self.layer_names = layer_names
+        self.active_area_names = active_partial_area_names()
+        self.zoom = zoom
+        self.dpi =dpi
+
+    def save_active_areas(self) -> None:
+        for area_name in self.active_area_names:
+            Frame(area_name, self.layer_names, self.zoom).create()
+            save_active_area(self.dpi, self.output_path(area_name))
+
+    def output_path(self, partial_area_name):
+        path = str((partial_area_name, self.layer_names))
+        return path
+    
+
+
+def save_project_images(layer_names_of_projects: ProjectLayers, zoom: float, dpi: float) -> None:
     for project in layer_names_of_projects:
         save_images_for_active_partial_areas(layer_names_of_projects[project], zoom, dpi)
 
@@ -21,99 +105,3 @@ def layer_names_in_area(partial_area_name, layer_names):
 
 def give_overlap_list(x, y):
     pass
-
-def set_visibility(layers):
-    pass
-
-def zoom_to(area, zoom):
-    pass
-
-def save_active_area(dpi, path):
-    pass
-
-def active_partial_area_names() -> list[str]:
-    return ['r']
-
-
-
-class Rectangle:
-    def __init__(self, x: float, y: float, w: float,  h: float) -> None:
-        self.x = x
-        self.y = y
-        self.w = w
-        self.h = h
-
-class Layout():
-    def __init__(self, active_layers_in_frame) -> None:
-        self.active_layers_in_frame = active_layers_in_frame
-        self.layout_name = 'Export'
-        self.rectangle = Rectangle(310, 5, 0, 0)
-
-    def create(self):
-        self.remove_all_layouts()
-        self.set_layout_type()
-        self.add_scale_bar
-        self.add_legend()
-
-    def add_map(self):
-        self.map = 7
-        pass
-    
-    def add_legend(self):
-        x = self.active_layers_in_frame
-        pass
-
-    def add_scale_bar(self):
-        x = self.map
-        y = self.layout_name
-        pass
-
-    def set_layout_type(self):
-        pass
-    
-    def remove_all_layouts(self):
-        pass
-
-
-
-
-
-
-
-
-
-
-
-##############
-class ImageMaker:
-    def __init__(self,  layer_names: list[str], zoom, dpi) -> None:
-        self.layer_names = layer_names
-        self.active_area_names = active_partial_area_names()
-        self.zoom = zoom
-        self.dpi =dpi
-
-    def save_active_areas(self) -> None:
-        for area_name in self.active_area_names:
-            Frame(area_name, self.layer_names, self.zoom).create()
-            save_active_area(self.dpi, self.output_path(area_name))
-
-    def output_path(self, partial_area_name):
-        path = str((partial_area_name, self.layer_names))
-        return path
-    
-
-class Frame:
-    """Frame sets visible layers, position, zoom, legend and scalebar"""
-    def __init__(self, partial_area_name: str, layer_names: list[str], zoom: float) -> None:
-        self.partial_area_name = partial_area_name
-        self.layer_names = layer_names
-        self.zoom = zoom
-    
-    def active_layer_names_in_frame(self):
-        return give_overlap_list(self.partial_area_name, self.layer_names)
-
-    def create(self):
-        set_visibility(self.layer_names)
-        zoom_to(self.partial_area_name, self.zoom)
-        Layout(self.active_layer_names_in_frame()).create()
-
